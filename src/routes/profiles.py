@@ -67,7 +67,7 @@ async def create_profile(
             detail="You do not have permission to edit this operation."
         )
 
-    stmt = select(UserProfileModel).filter_by(id=user_id)
+    stmt = select(UserProfileModel).filter_by(user_id=user_id)
     result = await db.execute(stmt)
     if bool(result.scalars().first()):
         raise HTTPException(
