@@ -2,7 +2,7 @@ from copy import copy
 
 from fastapi import HTTPException
 from sqlalchemy import select
-
+from src.exceptions.storage import BaseS3Error
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordBearer
 from starlette import status
@@ -85,7 +85,7 @@ async def create_profile(
     user_profile_data = copy(data.model_dump())
     user_profile_data["avatar"] = await s3_client.get_file_url(f"avatars/{user_id}_avatar.jpg")
     user_profile_data["user"] = user
-    user_profile_data["user_id"] = cast(int, user.id),
+    user_profile_data["user_id"] = cast(int, user.id)
     user_profile = UserProfileModel(**user_profile_data)
     db.add(user_profile)
     await db.commit()

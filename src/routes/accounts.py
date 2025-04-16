@@ -35,12 +35,6 @@ from security.interfaces import JWTAuthManagerInterface
 
 router = APIRouter()
 
-background_tasks.add_task(
-    email_sender.send_activation_request_email,
-    str(user_data.email),
-    activation_link
-)
-
 
 @router.post(
     "/register/",
@@ -129,6 +123,14 @@ async def register_user(
 
         await db.commit()
         await db.refresh(new_user)
+        activation_url = request.url_for("activate_account")
+        activation_link = f"{activation_url}?email={user_data.email}&token={activation_token.token}"
+
+        background_tasks.add_task(
+            email_sender.send_activation_request_email,
+            str(user_data.email),
+            activation_link
+        )
     except SQLAlchemyError as e:
         await db.rollback()
         raise HTTPException(
